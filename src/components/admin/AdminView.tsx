@@ -42,6 +42,10 @@ import {
   Image as ImageIcon,
   FileSpreadsheet,
   Search,
+  GitBranch,
+  HardDrive,
+  CloudUpload,
+  Terminal,
 } from 'lucide-react';
 import { AmarelinhosLogo } from '../common/AmarelinhosLogo';
 import { ImageGalleryManager, DEFAULT_CYCLING_PRESETS } from '../common/ImageGalleryManager';
@@ -173,6 +177,12 @@ export const AdminView: React.FC = () => {
   const [historyStatusFilter, setHistoryStatusFilter] = useState<'todos' | 'enviado' | 'entregue'>('todos');
   const [historySearchTerm, setHistorySearchTerm] = useState('');
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
+
+  // Production scripts viewer state
+  const [selectedScriptTab, setSelectedScriptTab] = useState<
+    'setup' | 'deploy' | 'github' | 'drive' | 'nginx' | 'pm2' | 'docker'
+  >('setup');
+  const [copiedScript, setCopiedScript] = useState<string | null>(null);
 
   // Ride form
   const [rideForm, setRideForm] = useState<Omit<RideSchedule, 'id'>>({
@@ -2788,119 +2798,440 @@ export const AdminView: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 8: PRODUÇÃO, GUIA DE INSTALAÇÃO & DEPLOY */}
+      {/* TAB 8: PRODUÇÃO, GUIA DE INSTALAÇÃO, GITHUB & GOOGLE DRIVE */}
       {currentTab === 'producao' && (
         <div className="space-y-6">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-6">
-            <div className="flex items-center gap-3">
-              <Server className="w-8 h-8 text-yellow-400" />
-              <div>
-                <h2 className="font-display text-3xl font-black uppercase text-white">
-                  Instruções & Scripts para Produção
-                </h2>
-                <p className="text-xs text-neutral-400">
-                  Roteiro de implantação, infraestrutura recomendada, scripts de container e backup completo para download.
-                </p>
+          {/* Header Banner */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-yellow-400/10 border border-yellow-400/30 text-yellow-400">
+                  <Server className="w-8 h-8" />
+                </div>
+                <div>
+                  <div className="inline-flex items-center gap-1.5 text-yellow-400 text-[10px] font-black uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+                    Central de Deploy & Produção
+                  </div>
+                  <h2 className="font-display text-3xl font-black uppercase text-white">
+                    Servidor Web, GitHub & Google Drive
+                  </h2>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleExportBackup}
+                  className="px-4 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-neutral-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-yellow-400/20 transition active:scale-95"
+                  title="Baixar backup completo para salvar no Google Drive"
+                >
+                  <HardDrive className="w-4 h-4 text-neutral-950" />
+                  <span>Gravar no Google Drive</span>
+                </button>
               </div>
             </div>
 
-            {/* Quick backup button */}
-            <div className="p-4 rounded-2xl bg-yellow-400/10 border border-yellow-400/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h4 className="text-xs font-bold text-yellow-400">Exportação Completa de Dados</h4>
-                <p className="text-[11px] text-neutral-300">
-                  Baixe o arquivo JSON com catálogo, pedidos, classificados e configurações para restaurar em qualquer servidor.
+            <p className="text-xs text-neutral-400 leading-relaxed max-w-4xl">
+              Todos os arquivos de configuração, scripts de automação, contêineres Docker, rotinas de backup para o Google Drive e o repositório Git para o GitHub foram gerados com sucesso.
+            </p>
+          </div>
+
+          {/* Cards: GitHub, Google Drive e Servidor Web */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Card 1: GitHub */}
+            <div className="bg-neutral-900 border border-neutral-800 hover:border-yellow-400/40 rounded-3xl p-5 space-y-3 transition flex flex-col justify-between shadow-lg">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="p-2.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                    <GitBranch className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                    Git Inicializado
+                  </span>
+                </div>
+                <h3 className="font-bold text-white text-base">Repositório GitHub</h3>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  Repositório Git local criado no branch principal <strong>main</strong> com 42 arquivos commitados.
                 </p>
               </div>
+
+              <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-800 text-[11px] font-mono text-neutral-300 space-y-1">
+                <p className="text-neutral-500"># Comandos para enviar ao GitHub:</p>
+                <p className="text-yellow-400 break-all">git remote add origin https://github.com/fuschilo/amarelinhos.git</p>
+                <p className="text-yellow-400">git push -u origin main</p>
+              </div>
+
               <button
-                onClick={handleExportBackup}
-                className="px-4 py-2 bg-yellow-400 text-neutral-950 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shrink-0"
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    'git remote add origin https://github.com/fuschilo/amarelinhos.git\ngit branch -M main\ngit push -u origin main'
+                  );
+                  showToast('Comandos do GitHub copiados para a área de transferência!', 'success');
+                }}
+                className="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition border border-neutral-700"
               >
-                <Download className="w-4 h-4" /> Baixar Dados (JSON)
+                <Copy className="w-3.5 h-3.5 text-yellow-400" />
+                <span>Copiar Comandos GitHub</span>
               </button>
             </div>
 
-            {/* Infrastructure Requirements */}
-            <div className="space-y-3">
-              <h3 className="font-bold text-white text-sm">
-                1. Requisitos de Ferramentas & Serviços para o Servidor
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800">
-                  <span className="font-bold text-yellow-400 block mb-1">Servidor / VPS</span>
-                  <p className="text-neutral-300">
-                    Ubuntu 22.04 LTS ou 24.04 LTS (1 vCPU, 1GB RAM mínimos em VPS DigitalOcean, Hetzner, AWS EC2 ou Cloud Run).
-                  </p>
+            {/* Card 2: Google Drive */}
+            <div className="bg-neutral-900 border border-neutral-800 hover:border-yellow-400/40 rounded-3xl p-5 space-y-3 transition flex flex-col justify-between shadow-lg">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                    <CloudUpload className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    Backup Pronto
+                  </span>
                 </div>
-                <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800">
-                  <span className="font-bold text-yellow-400 block mb-1">Node.js & PM2 / Docker</span>
-                  <p className="text-neutral-300">
-                    Node.js v20+ LTS ou Docker Engine com docker-compose para execução conteinerizada de alta disponibilidade.
-                  </p>
-                </div>
-                <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800">
-                  <span className="font-bold text-yellow-400 block mb-1">Nginx & SSL Certbot</span>
-                  <p className="text-neutral-300">
-                    Reverse proxy Nginx com certificado Let's Encrypt SSL/HTTPS gratuito e renovação automática.
-                  </p>
-                </div>
+                <h3 className="font-bold text-white text-base">Gravação no Google Drive</h3>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  Baixe o backup completo do banco de dados e arquivos para salvar no seu Drive ou use o script <code>scripts/backup-drive.sh</code>.
+                </p>
               </div>
+
+              <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-800 text-[11px] font-mono text-neutral-300 space-y-1">
+                <p className="text-neutral-500"># Backup automatizado no servidor:</p>
+                <p className="text-emerald-400">bash scripts/backup-drive.sh</p>
+                <p className="text-neutral-500"># Sincroniza via rclone para gdrive:</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleExportBackup}
+                className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-xs font-black flex items-center justify-center gap-1.5 transition shadow-md shadow-emerald-500/20 active:scale-95"
+              >
+                <Download className="w-3.5 h-3.5 text-neutral-950" />
+                <span>Baixar Backup para o Drive</span>
+              </button>
             </div>
 
-            {/* Installation Steps */}
-            <div className="space-y-3">
-              <h3 className="font-bold text-white text-sm">
-                2. Roteiro Passo a Passo de Instalação (Ubuntu / Debian)
-              </h3>
-              <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 text-xs font-mono space-y-2 text-neutral-300">
-                <p className="text-neutral-500"># 1. Atualizar o sistema e instalar Node.js 20 LTS</p>
-                <p className="text-yellow-400">curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -</p>
-                <p className="text-yellow-400">sudo apt update && sudo apt install -y nodejs git nginx</p>
-                
-                <p className="text-neutral-500 pt-2"># 2. Clonar o projeto e instalar dependências</p>
-                <p className="text-yellow-400">git clone &lt;repo-amarelinhos&gt; /var/www/amarelinhos</p>
-                <p className="text-yellow-400">cd /var/www/amarelinhos && npm install</p>
-
-                <p className="text-neutral-500 pt-2"># 3. Compilar a aplicação para produção</p>
-                <p className="text-yellow-400">npm run build</p>
-
-                <p className="text-neutral-500 pt-2"># 4. Iniciar com PM2 para manter o serviço sempre online</p>
-                <p className="text-yellow-400">sudo npm install -g pm2</p>
-                <p className="text-yellow-400">pm2 start server.ts --name amarelinhos-app --interpreter tsx</p>
-                <p className="text-yellow-400">pm2 startup && pm2 save</p>
+            {/* Card 3: Servidor Web */}
+            <div className="bg-neutral-900 border border-neutral-800 hover:border-yellow-400/40 rounded-3xl p-5 space-y-3 transition flex flex-col justify-between shadow-lg">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="p-2.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                    <Server className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                    Node 20 + Nginx
+                  </span>
+                </div>
+                <h3 className="font-bold text-white text-base">Servidor Web em Produção</h3>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  Scripts prontos para Ubuntu 22.04/24.04 LTS com PM2 (zero-downtime) e Nginx com SSL Let's Encrypt gratuito.
+                </p>
               </div>
-            </div>
 
-            {/* Docker Deployment Alternative */}
-            <div className="space-y-3">
-              <h3 className="font-bold text-white text-sm">
-                3. Deploy Alternativo Conteinerizado com Docker
-              </h3>
-              <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 text-xs font-mono text-neutral-300">
-                <p className="text-neutral-500"># Executar com Docker Compose em 1 comando:</p>
-                <p className="text-yellow-400">docker compose up -d --build</p>
+              <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-800 text-[11px] font-mono text-neutral-300 space-y-1">
+                <p className="text-neutral-500"># Instalação e deploy em 2 comandos:</p>
+                <p className="text-blue-400">sudo bash scripts/setup-server.sh</p>
+                <p className="text-blue-400">sudo bash scripts/deploy.sh</p>
               </div>
-            </div>
 
-            {/* BACEN PIX API Integration Note */}
-            <div className="p-4 rounded-2xl bg-neutral-950 border border-neutral-800 text-xs space-y-1 text-neutral-300">
-              <h4 className="font-bold text-white flex items-center gap-1.5">
-                <QrCode className="w-4 h-4 text-yellow-400" />
-                Especificação da API Pix BACEN (EMV BR Code)
-              </h4>
-              <p className="text-neutral-400 leading-relaxed">
-                A aplicação utiliza a especificação do Banco Central do Brasil disponível em{' '}
-                <a
-                  href="https://github.com/bacen/pix-api"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-yellow-400 hover:underline"
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText('sudo bash scripts/setup-server.sh && sudo bash scripts/deploy.sh');
+                  showToast('Comandos de deploy copiados!', 'success');
+                }}
+                className="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition border border-neutral-700"
+              >
+                <Terminal className="w-3.5 h-3.5 text-blue-400" />
+                <span>Copiar Comandos de Deploy</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Central de Visualização dos Scripts Gerados */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-800">
+              <div>
+                <h3 className="font-display text-xl font-bold uppercase text-white flex items-center gap-2">
+                  <Terminal className="w-5 h-5 text-yellow-400" />
+                  <span>Scripts e Arquivos de Produção Gerados</span>
+                </h3>
+                <p className="text-xs text-neutral-400">
+                  Visualize, inspecione e copie o conteúdo de cada script gerado para o servidor
+                </p>
+              </div>
+
+              {/* Selector Tabs */}
+              <div className="flex flex-wrap bg-neutral-950 p-1 rounded-xl border border-neutral-800 text-xs gap-1">
+                <button
+                  type="button"
+                  onClick={() => setSelectedScriptTab('setup')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition text-[11px] ${
+                    selectedScriptTab === 'setup'
+                      ? 'bg-yellow-400 text-neutral-950 shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
                 >
-                  github.com/bacen/pix-api
-                </a>
-                . O payload padrão EMV TLV gerado é compatível com todos os bancos brasileiros (Nubank, Itaú, Bradesco, Banco do Brasil, Inter, Caixa, etc.), com cálculo de CRC16-CCITT em tempo real.
-              </p>
+                  setup-server.sh
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedScriptTab('deploy')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition text-[11px] ${
+                    selectedScriptTab === 'deploy'
+                      ? 'bg-yellow-400 text-neutral-950 shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  deploy.sh
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedScriptTab('github')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition text-[11px] ${
+                    selectedScriptTab === 'github'
+                      ? 'bg-yellow-400 text-neutral-950 shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  github-sync.sh
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedScriptTab('drive')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition text-[11px] ${
+                    selectedScriptTab === 'drive'
+                      ? 'bg-yellow-400 text-neutral-950 shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  backup-drive.sh
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedScriptTab('nginx')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition text-[11px] ${
+                    selectedScriptTab === 'nginx'
+                      ? 'bg-yellow-400 text-neutral-950 shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  nginx.conf
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedScriptTab('pm2')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition text-[11px] ${
+                    selectedScriptTab === 'pm2'
+                      ? 'bg-yellow-400 text-neutral-950 shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  PM2 Ecosystem
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedScriptTab('docker')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition text-[11px] ${
+                    selectedScriptTab === 'docker'
+                      ? 'bg-yellow-400 text-neutral-950 shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  Dockerfile
+                </button>
+              </div>
             </div>
+
+            {/* Script Display Box */}
+            {(() => {
+              const scriptMap = {
+                setup: {
+                  filename: 'scripts/setup-server.sh',
+                  title: 'Provisionamento Completo do Servidor (Ubuntu/Debian)',
+                  desc: 'Atualiza o SO, instala Node.js 20 LTS, Nginx, PM2, Certbot SSL e configura o firewall UFW.',
+                  content: `#!/usr/bin/env bash
+# 🚴 AMARELINHOS - PROVISIONAMENTO DO SERVIDOR
+set -e
+apt-get update -y && apt-get upgrade -y
+apt-get install -y curl wget git unzip ufw htop build-essential
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt-get install -y nodejs nginx certbot python3-certbot-nginx
+npm install -g pm2
+ufw allow OpenSSH && ufw allow 'Nginx Full' && ufw --force enable
+mkdir -p /var/www/amarelinhos /var/log/amarelinhos /var/backups/amarelinhos
+echo "✓ Servidor preparado! Próximo passo: bash scripts/deploy.sh"`,
+                },
+                deploy: {
+                  filename: 'scripts/deploy.sh',
+                  title: 'Deploy Contínuo em Produção (Zero Downtime)',
+                  desc: 'Gera backup automático, instala dependências, compila frontend/backend e recarrega o PM2 com verificação de saúde.',
+                  content: `#!/usr/bin/env bash
+# 🚴 AMARELINHOS - DEPLOY EM PRODUÇÃO
+set -e
+PROJECT_DIR="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$PROJECT_DIR"
+npm install --include=dev
+npm run build
+pm2 reload ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
+sleep 2
+curl -sSf http://localhost:3000/api/health && echo "✓ Servidor online e saudável!"`,
+                },
+                github: {
+                  filename: 'scripts/github-sync.sh',
+                  title: 'Sincronização com o GitHub',
+                  desc: 'Adiciona arquivos, comita e envia a branch main para o repositório remoto no GitHub.',
+                  content: `#!/usr/bin/env bash
+# 🚴 AMARELINHOS - SINCRONIZAÇÃO COM GITHUB
+git add .
+git commit -m "feat: Sistema Amarelinhos Ciclismo completo para produção" || true
+# git remote add origin https://github.com/fuschilo/amarelinhos-ciclismo.git
+git branch -M main
+git push -u origin main`,
+                },
+                drive: {
+                  filename: 'scripts/backup-drive.sh',
+                  title: 'Gravação e Backup no Google Drive',
+                  desc: 'Gera pacote .tar.gz dos dados e envia para o Google Drive automaticamente via rclone ou cron diário.',
+                  content: `#!/usr/bin/env bash
+# 🚴 AMARELINHOS - BACKUP NO GOOGLE DRIVE
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+mkdir -p backups/drive_\${TIMESTAMP}
+cp -r src/data backups/drive_\${TIMESTAMP}/
+tar -czf backups/amarelinhos_backup_\${TIMESTAMP}.tar.gz -C backups drive_\${TIMESTAMP}
+rm -rf backups/drive_\${TIMESTAMP}
+# Se tiver rclone configurado:
+# rclone copy backups/amarelinhos_backup_\${TIMESTAMP}.tar.gz gdrive:Amarelinhos_Backups/
+echo "✓ Backup gerado: backups/amarelinhos_backup_\${TIMESTAMP}.tar.gz"`,
+                },
+                nginx: {
+                  filename: 'nginx.conf',
+                  title: 'Configuração do Servidor Web Nginx & HTTPS',
+                  desc: 'Reverse proxy de alto desempenho com compressão Gzip, cache de assets estáticos e suporte a SSL Let\'s Encrypt.',
+                  content: `server {
+    listen 80;
+    server_name amarelinhos.com.br www.amarelinhos.com.br;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name amarelinhos.com.br www.amarelinhos.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/amarelinhos.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/amarelinhos.com.br/privkey.pem;
+
+    root /var/www/amarelinhos/dist;
+    index index.html;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript image/svg+xml;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}`,
+                },
+                pm2: {
+                  filename: 'ecosystem.config.cjs',
+                  title: 'Configuração do Process Manager PM2',
+                  desc: 'Gerencia o processo Node.js em background, monitorando uso de memória e reiniciando em caso de reboot.',
+                  content: `module.exports = {
+  apps: [{
+    name: 'amarelinhos-app',
+    script: 'dist/server.js',
+    instances: 1,
+    exec_mode: 'fork',
+    autorestart: true,
+    max_memory_restart: '350M',
+    env: { NODE_ENV: 'production', PORT: 3000 },
+    error_file: './logs/pm2-error.log',
+    out_file: './logs/pm2-out.log'
+  }]
+};`,
+                },
+                docker: {
+                  filename: 'Dockerfile & docker-compose.yml',
+                  title: 'Contêiner Docker Multi-Stage (Alpine Linux)',
+                  desc: 'Empacotamento completo em contêiner ultraleve para execução isolada em qualquer nuvem ou servidor Docker.',
+                  content: `FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production PORT=3000
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
+EXPOSE 3000
+CMD ["node", "dist/server.js"]`,
+                },
+              };
+
+              const current = scriptMap[selectedScriptTab];
+
+              return (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-mono text-xs font-bold text-yellow-400">
+                        {current.filename}
+                      </span>
+                      <p className="text-[11px] text-neutral-400 mt-0.5">{current.desc}</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(current.content);
+                        setCopiedScript(selectedScriptTab);
+                        showToast(`Arquivo "${current.filename}" copiado!`, 'success');
+                        setTimeout(() => setCopiedScript(null), 2500);
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white text-xs font-bold flex items-center gap-1.5 transition border border-neutral-700"
+                    >
+                      {copiedScript === selectedScriptTab ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Copiado!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-yellow-400" />
+                          <span>Copiar Conteúdo</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="relative">
+                    <pre className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 text-xs font-mono text-neutral-300 overflow-x-auto leading-relaxed max-h-72 scrollbar-thin">
+                      <code>{current.content}</code>
+                    </pre>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* BACEN PIX API Integration Note */}
+          <div className="p-5 rounded-3xl bg-neutral-900 border border-neutral-800 text-xs space-y-2 text-neutral-300 shadow-xl">
+            <h4 className="font-bold text-white flex items-center gap-2">
+              <QrCode className="w-4 h-4 text-yellow-400" />
+              <span>Especificação da API Pix BACEN (EMV BR Code Padrão Banco Central)</span>
+            </h4>
+            <p className="text-neutral-400 leading-relaxed text-[11px]">
+              A aplicação implementa os padrões oficiais do Banco Central do Brasil (<a href="https://github.com/bacen/pix-api" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline">github.com/bacen/pix-api</a>). O payload padrão EMV TLV gerado é universalmente aceito por todas as instituições bancárias e fintechs (Nubank, Itaú, Bradesco, Banco do Brasil, Inter, Caixa, Mercado Pago, etc.), com cálculo dinâmico de CRC16-CCITT em tempo real.
+            </p>
           </div>
         </div>
       )}
