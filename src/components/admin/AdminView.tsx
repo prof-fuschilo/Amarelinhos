@@ -183,7 +183,7 @@ export const AdminView: React.FC = () => {
     'setup' | 'deploy' | 'github' | 'drive' | 'nginx' | 'pm2' | 'docker'
   >('setup');
   const [copiedScript, setCopiedScript] = useState<string | null>(null);
-  const [customGitHubRepo, setCustomGitHubRepo] = useState('https://github.com/fuschilo/amarelinhos-ciclismo.git');
+  const [customGitHubRepo, setCustomGitHubRepo] = useState('https://github.com/prof-fuschilo/Amarelinhos.git');
 
   // Ride form
   const [rideForm, setRideForm] = useState<Omit<RideSchedule, 'id'>>({
