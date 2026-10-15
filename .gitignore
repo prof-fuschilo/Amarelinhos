@@ -18,6 +18,8 @@ yarn-error.log*
 # Backups locais compactados
 backups/*.tar.gz
 backups/*.zip
+public/*.zip
+*.zip
 
 # Variáveis de ambiente
 .env
