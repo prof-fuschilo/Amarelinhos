@@ -183,6 +183,7 @@ export const AdminView: React.FC = () => {
     'setup' | 'deploy' | 'github' | 'drive' | 'nginx' | 'pm2' | 'docker'
   >('setup');
   const [copiedScript, setCopiedScript] = useState<string | null>(null);
+  const [customGitHubRepo, setCustomGitHubRepo] = useState('https://github.com/fuschilo/amarelinhos-ciclismo.git');
 
   // Ride form
   const [rideForm, setRideForm] = useState<Omit<RideSchedule, 'id'>>({
@@ -2820,6 +2821,15 @@ export const AdminView: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href="/amarelinhos-ciclismo-producao.zip"
+                  download="amarelinhos-ciclismo-producao.zip"
+                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-95"
+                  title="Baixar pacote ZIP completo do repositório para upload no GitHub"
+                >
+                  <Download className="w-4 h-4 text-white" />
+                  <span>Baixar ZIP (Upload GitHub)</span>
+                </a>
                 <button
                   type="button"
                   onClick={handleExportBackup}
@@ -2841,40 +2851,61 @@ export const AdminView: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Card 1: GitHub */}
             <div className="bg-neutral-900 border border-neutral-800 hover:border-yellow-400/40 rounded-3xl p-5 space-y-3 transition flex flex-col justify-between shadow-lg">
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="p-2.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
                     <GitBranch className="w-5 h-5" />
                   </div>
                   <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                    Git Inicializado
+                    Git Pronto (43 arquivos)
                   </span>
                 </div>
-                <h3 className="font-bold text-white text-base">Repositório GitHub</h3>
-                <p className="text-xs text-neutral-400 leading-relaxed">
-                  Repositório Git local criado no branch principal <strong>main</strong> com 42 arquivos commitados.
-                </p>
+                <div>
+                  <h3 className="font-bold text-white text-base">Upload para o GitHub</h3>
+                  <p className="text-xs text-neutral-400 leading-relaxed mt-1">
+                    Branch principal <strong className="text-yellow-400">main</strong> limpa e com todos os 43 arquivos commitados.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">
+                    URL do seu repositório no GitHub:
+                  </label>
+                  <input
+                    type="text"
+                    value={customGitHubRepo}
+                    onChange={(e) => setCustomGitHubRepo(e.target.value)}
+                    placeholder="https://github.com/fuschilo/amarelinhos-ciclismo.git"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-yellow-400 font-mono focus:border-yellow-400 focus:outline-none"
+                  />
+                </div>
               </div>
 
-              <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-800 text-[11px] font-mono text-neutral-300 space-y-1">
-                <p className="text-neutral-500"># Comandos para enviar ao GitHub:</p>
-                <p className="text-yellow-400 break-all">git remote add origin https://github.com/fuschilo/amarelinhos.git</p>
-                <p className="text-yellow-400">git push -u origin main</p>
-              </div>
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const repo = customGitHubRepo.trim() || 'https://github.com/fuschilo/amarelinhos-ciclismo.git';
+                    navigator.clipboard.writeText(
+                      `git remote add origin ${repo}\ngit branch -M main\ngit push -u origin main`
+                    );
+                    showToast('Comandos do Git copiados para a área de transferência!', 'success');
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm"
+                >
+                  <Copy className="w-3.5 h-3.5 text-white" />
+                  <span>Copiar Comandos Git Push</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    'git remote add origin https://github.com/fuschilo/amarelinhos.git\ngit branch -M main\ngit push -u origin main'
-                  );
-                  showToast('Comandos do GitHub copiados para a área de transferência!', 'success');
-                }}
-                className="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition border border-neutral-700"
-              >
-                <Copy className="w-3.5 h-3.5 text-yellow-400" />
-                <span>Copiar Comandos GitHub</span>
-              </button>
+                <a
+                  href="/amarelinhos-ciclismo-producao.zip"
+                  download="amarelinhos-ciclismo-producao.zip"
+                  className="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition border border-neutral-700 text-center"
+                >
+                  <Download className="w-3.5 h-3.5 text-yellow-400" />
+                  <span>Baixar ZIP do Projeto Completo</span>
+                </a>
+              </div>
             </div>
 
             {/* Card 2: Google Drive */}
