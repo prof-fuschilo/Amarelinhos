@@ -28,34 +28,32 @@ Este documento fornece as instruções passo a passo para colocar a aplicação 
 | `nginx.conf` | Configuração de alta performance do Nginx (Gzip, Cache estático, SSL, Proxy Reverso). |
 | `Dockerfile` | Contêiner multi-stage Alpine Linux ultraleve para execução isolada. |
 | `docker-compose.yml` | Orquestração do contêiner Docker com inicialização em 1 comando. |
-| `.github/workflows/deploy.yml` | Pipeline de Integração Contínua (CI) do GitHub Actions. |
+| `deploy/github-actions-deploy.yml` | Pipeline de Integração Contínua (CI) do GitHub Actions. |
 | `server.ts` | Servidor Node.js Express com fallback SPA e endpoint `/api/health`. |
 
 ---
 
 ## 2. Sincronização e Envio para o GitHub
 
-O repositório Git local já está inicializado no branch principal `main` e o commit inicial foi realizado.
+O repositório oficial está configurado e sincronizado no branch principal `main`:
+**[https://github.com/prof-fuschilo/Amarelinhos](https://github.com/prof-fuschilo/Amarelinhos)**
 
-### Como enviar para a sua conta no GitHub:
-
-1. Acesse o seu GitHub ([github.com/new](https://github.com/new)) e crie um novo repositório com o nome desejado (por exemplo: `amarelinhos-ciclismo`). **Deixe desmarcada a opção de inicializar com README**, pois o projeto já está pronto.
-2. No terminal do projeto, execute os comandos:
+### Como enviar atualizações para o GitHub:
 
 ```bash
-# Vincular ao seu repositório remoto (substitua pelo seu link do GitHub)
-git remote add origin https://github.com/fuschilo/amarelinhos-ciclismo.git
+# 1. Vincular ao seu repositório remoto oficial (já configurado)
+git remote add origin https://github.com/prof-fuschilo/Amarelinhos.git
 
-# Garantir o branch main
+# 2. Garantir o branch main
 git branch -M main
 
-# Enviar todos os arquivos e histórico para o GitHub
-git push -u origin main
+# 3. Enviar novos commits para o GitHub
+git push origin main
 ```
 
 > **Dica:** Você também pode rodar o script interativo:
 > ```bash
-> bash scripts/github-sync.sh https://github.com/fuschilo/amarelinhos-ciclismo.git
+> bash scripts/github-sync.sh https://github.com/prof-fuschilo/Amarelinhos.git
 > ```
 
 ---
@@ -97,7 +95,7 @@ crontab -e
 Conecte-se via SSH no seu servidor e execute:
 ```bash
 # Clone ou transfira os arquivos para o servidor:
-git clone https://github.com/fuschilo/amarelinhos-ciclismo.git /var/www/amarelinhos
+git clone https://github.com/prof-fuschilo/Amarelinhos.git /var/www/amarelinhos
 cd /var/www/amarelinhos
 
 # Execute o script que instala tudo automaticamente:
@@ -165,7 +163,8 @@ sudo certbot --nginx -d amarelinhos.com.br -d www.amarelinhos.com.br
 
 - [x] Front-end React 19 + Tailwind CSS compilado em `dist/`
 - [x] Servidor Node.js Express compilado em `dist/server.js`
-- [x] Repositório Git local criado no branch `main` com commit estruturado
+- [x] Repositório oficial sincronizado no GitHub: `https://github.com/prof-fuschilo/Amarelinhos`
+- [x] Documentação completa com `README.md` e `GUIA_PRODUCAO.md`
 - [x] Script de provisionamento do servidor (`scripts/setup-server.sh`)
 - [x] Script de deploy com zero downtime (`scripts/deploy.sh`)
 - [x] Script de sincronização com GitHub (`scripts/github-sync.sh`)
@@ -173,4 +172,4 @@ sudo certbot --nginx -d amarelinhos.com.br -d www.amarelinhos.com.br
 - [x] Configuração Nginx pronta com SSL e Gzip (`nginx.conf`)
 - [x] Configuração PM2 para execução contínua (`ecosystem.config.cjs`)
 - [x] Dockerfile multi-stage e Docker Compose (`Dockerfile`, `docker-compose.yml`)
-- [x] Pipeline CI/CD com GitHub Actions (`.github/workflows/deploy.yml`)
+- [x] Pipeline CI/CD com GitHub Actions (`deploy/github-actions-deploy.yml`)

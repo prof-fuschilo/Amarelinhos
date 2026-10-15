@@ -2822,13 +2822,15 @@ export const AdminView: React.FC = () => {
 
               <div className="flex flex-wrap items-center gap-2">
                 <a
-                  href="/amarelinhos-ciclismo-producao.zip"
-                  download="amarelinhos-ciclismo-producao.zip"
+                  href={customGitHubRepo}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-95"
-                  title="Baixar pacote ZIP completo do repositório para upload no GitHub"
+                  title="Abrir o repositório oficial no GitHub"
                 >
-                  <Download className="w-4 h-4 text-white" />
-                  <span>Baixar ZIP (Upload GitHub)</span>
+                  <GitBranch className="w-4 h-4 text-white" />
+                  <span>Ver Repositório no GitHub</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-white/70" />
                 </a>
                 <button
                   type="button"
@@ -2857,25 +2859,25 @@ export const AdminView: React.FC = () => {
                     <GitBranch className="w-5 h-5" />
                   </div>
                   <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                    Git Pronto (43 arquivos)
+                    Sincronizado no GitHub
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-base">Upload para o GitHub</h3>
+                  <h3 className="font-bold text-white text-base">Repositório GitHub</h3>
                   <p className="text-xs text-neutral-400 leading-relaxed mt-1">
-                    Branch principal <strong className="text-yellow-400">main</strong> limpa e com todos os 43 arquivos commitados.
+                    Branch principal <strong className="text-yellow-400">main</strong> sincronizada com README e Guia de Produção.
                   </p>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">
-                    URL do seu repositório no GitHub:
+                    URL do repositório no GitHub:
                   </label>
                   <input
                     type="text"
                     value={customGitHubRepo}
                     onChange={(e) => setCustomGitHubRepo(e.target.value)}
-                    placeholder="https://github.com/fuschilo/amarelinhos-ciclismo.git"
+                    placeholder="https://github.com/prof-fuschilo/Amarelinhos.git"
                     className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-yellow-400 font-mono focus:border-yellow-400 focus:outline-none"
                   />
                 </div>
@@ -2885,7 +2887,7 @@ export const AdminView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    const repo = customGitHubRepo.trim() || 'https://github.com/fuschilo/amarelinhos-ciclismo.git';
+                    const repo = customGitHubRepo.trim() || 'https://github.com/prof-fuschilo/Amarelinhos.git';
                     navigator.clipboard.writeText(
                       `git remote add origin ${repo}\ngit branch -M main\ngit push -u origin main`
                     );
@@ -2898,12 +2900,13 @@ export const AdminView: React.FC = () => {
                 </button>
 
                 <a
-                  href="/amarelinhos-ciclismo-producao.zip"
-                  download="amarelinhos-ciclismo-producao.zip"
+                  href={customGitHubRepo}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition border border-neutral-700 text-center"
                 >
-                  <Download className="w-3.5 h-3.5 text-yellow-400" />
-                  <span>Baixar ZIP do Projeto Completo</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-yellow-400" />
+                  <span>Abrir Repositório no GitHub</span>
                 </a>
               </div>
             </div>
