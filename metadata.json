@@ -1,0 +1,6 @@
+{
+  "name": "Amarelinhos - Grupo de Ciclismo",
+  "description": "Plataforma oficial do grupo de ciclismo Amarelinhos: apresentação, loja com encomendas PIX EMV, classificados e painel administrativo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
